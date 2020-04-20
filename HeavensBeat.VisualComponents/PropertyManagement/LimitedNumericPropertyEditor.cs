@@ -44,7 +44,6 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             if (gridFlow != null)
             {
                 gridFlow.Spacing = value;
-                gridFlow.Invalidate(Invalidation.DrawInfo, osu.Framework.Layout.InvalidationSource.Parent);
             }
             else
                 OnLoadComplete += SetSpacing;
