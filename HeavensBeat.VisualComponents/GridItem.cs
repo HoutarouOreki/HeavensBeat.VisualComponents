@@ -11,6 +11,8 @@ namespace HeavensBeat.VisualComponents
 
         private bool relativeSize;
 
+        private bool shouldValidate;
+
         public float? TargetSize
         {
             get => targetSize;
@@ -47,15 +49,33 @@ namespace HeavensBeat.VisualComponents
 
         protected override bool OnInvalidate(Invalidation invalidation, InvalidationSource source)
         {
-            if (!invalidation.HasFlag(Invalidation.DrawInfo))
-                return false;
-            var returnValue = base.OnInvalidate(invalidation, source);
+            base.OnInvalidate(invalidation, source);
+            if (source == InvalidationSource.Parent && (invalidation.HasFlag(Invalidation.DrawInfo) || invalidation.HasFlag(Invalidation.MiscGeometry) || invalidation.HasFlag(Invalidation.DrawSize)))
+            {
+                shouldValidate = true;
+                return true;
+            }
+            return false;
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (shouldValidate)
+            {
+                Validate();
+                shouldValidate = false;
+            }
+        }
+
+        private void Validate()
+        {
             if (Parent == null)
-                return false;
+                return;
             if (!(Parent is FillFlowContainer<GridItem> parent))
-                throw new System.Exception($"Parent is a {Parent.GetType()} (should be {typeof(FillFlowContainer)}<{typeof(GridItem)}>).");
+                throw new System.Exception($"Parent is a {Parent.GetType()} (should be {typeof(GridItemsContainer)}).");
             if (parent.Direction == FillDirection.Full)
-                throw new System.Exception($"Parent flow container has a Full fill direction");
+                throw new System.Exception($"Parent has a Full fill direction");
 
             var newRSA = parent.Direction == FillDirection.Horizontal ? Axes.Y : Axes.X;
             if (!AutoSizeAxes.HasFlag(newRSA))
@@ -92,7 +112,6 @@ namespace HeavensBeat.VisualComponents
                 Width = size;
             else if (direction == FillDirection.Vertical)
                 Height = size;
-            return returnValue;
         }
     }
 }
