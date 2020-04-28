@@ -46,7 +46,6 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             Current = CreateCurrent();
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
-            var mainContent = CreateMainContent();
             InternalChildren = new Drawable[]
             {
                 background = new Box { BypassAutoSizeAxes = Axes.Y, RelativeSizeAxes = Axes.Both, Colour = FrameworkColour.BlueGreenDark },
@@ -76,8 +75,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
                         mainContentContainer = new Container
                         {
                             RelativeSizeAxes = Axes.X,
-                            Height = 30,
-                            Child = mainContent
+                            AutoSizeAxes = Axes.Y
                         },
                         propertyStateText = new SpriteText()
                     }
@@ -104,6 +102,12 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         protected void TriggerError(string? errorMessage) => state.Value = new PropertyStateInfo(PropertyState.Error, errorMessage);
 
         protected virtual void OnCurrentChanged(ValueChangedEvent<T> change) { }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            mainContentContainer.Add(CreateMainContent());
+        }
 
         private void OnSpacingChangedInternal(Vector2 value) => outerFlow.Spacing = innerFlow.Spacing = value;
 
