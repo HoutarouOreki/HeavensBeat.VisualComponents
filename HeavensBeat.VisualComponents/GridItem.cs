@@ -1,7 +1,6 @@
 ﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Layout;
-using osu.Framework.Logging;
 
 namespace HeavensBeat.VisualComponents
 {
@@ -86,9 +85,6 @@ namespace HeavensBeat.VisualComponents
             var direction = parent.Direction;
             var spacing = parent.Direction == FillDirection.Horizontal ? parent.Spacing.X : parent.Spacing.Y;
             var fullSpace = (direction == FillDirection.Horizontal ? parent.ChildSize.X : parent.ChildSize.Y) - (spacing * (parent.Children.Count - 1));
-            Logger.Log($"{fullSpace} = {direction} ? {parent.ChildSize.X} : {parent.ChildSize.Y} - ({spacing} * {parent.Children.Count - 1})");
-            Logger.Log($"paddingX: {parent.Padding.Left}+{parent.Padding.Right}");
-            Logger.Log($"sizeX: {parent.DrawWidth}");
             float size;
 
             if (TargetSize.HasValue)
