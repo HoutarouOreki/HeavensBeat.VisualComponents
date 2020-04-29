@@ -2,6 +2,7 @@
 using osu.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HeavensBeat.VisualComponents.PropertyManagement
 {
@@ -32,9 +33,9 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         private Dictionary<int, string> GenerateNames()
         {
             var result = new Dictionary<int, string>();
-            var values = Enum.GetValues(typeof(T));
+            var values = Enum.GetValues(typeof(T)).Cast<int>().ToList();
 
-            foreach (int item in values)
+            foreach (var item in values)
                 result.Add(item, Enum.GetName(typeof(T), item) ?? "");
             return result;
         }
