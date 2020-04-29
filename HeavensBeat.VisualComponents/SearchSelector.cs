@@ -31,12 +31,18 @@ namespace HeavensBeat.VisualComponents
                     optionsFlow.Add(optionDisplay);
                     optionDisplay.Selected += OnOptionSelected;
                 }
+                var amountOfOptions = deselectOption ? 1 : 0;
                 foreach (var option in options)
                 {
                     var optionDisplay = new OptionDisplay(option);
                     optionsFlow.Add(optionDisplay);
                     optionDisplay.Selected += OnOptionSelected;
+                    amountOfOptions++;
                 }
+                if (amountOfOptions > optionsWithoutSearch)
+                    searchBoxGridItem.Show();
+                else
+                    searchBoxGridItem.Hide();
                 OnOptionSelected(Current.Value);
             }
         }
@@ -45,15 +51,21 @@ namespace HeavensBeat.VisualComponents
 
         private IEnumerable<string> options = new List<string>();
         private readonly FillFlowContainer<OptionDisplay> optionsFlow;
+        private readonly int optionsWithoutSearch;
         private readonly bool deselectOption;
+        private readonly GridItem searchBoxGridItem;
 
-        public SearchSelector(bool deselectOption = false)
+        /// <param name="optionsWithoutSearch">
+        /// Search textbox doesn't appear if the amount of options is up to this number.
+        /// </param>
+        /// <param name="deselectOption"></param>
+        public SearchSelector(int optionsWithoutSearch = 4, bool deselectOption = false)
         {
             Direction = FillDirection.Vertical;
             Spacing = new osuTK.Vector2(spacing);
             Children = new GridItem[]
             {
-                new GridItem(MODULE_SIZE, false, new HBTextBox
+                searchBoxGridItem = new GridItem(MODULE_SIZE, false, new HBTextBox
                 {
                     RelativeSizeAxes = Axes.Both,
                     Current = searchCurrent,
@@ -82,6 +94,7 @@ namespace HeavensBeat.VisualComponents
                 })
             };
             searchCurrent.BindValueChanged(SearchUpdated, true);
+            this.optionsWithoutSearch = optionsWithoutSearch;
             this.deselectOption = deselectOption;
         }
 

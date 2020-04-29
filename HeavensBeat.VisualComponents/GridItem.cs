@@ -84,19 +84,27 @@ namespace HeavensBeat.VisualComponents
 
             var direction = parent.Direction;
             var spacing = parent.Direction == FillDirection.Horizontal ? parent.Spacing.X : parent.Spacing.Y;
-            var fullSpace = (direction == FillDirection.Horizontal ? parent.ChildSize.X : parent.ChildSize.Y) - (spacing * (parent.Children.Count - 1));
+
+            var visibleNeighbours = 0;
+            foreach (var neighbour in parent.Children)
+            {
+                if (neighbour.IsPresent)
+                    visibleNeighbours++;
+            }
+
+            var fullSpace = (direction == FillDirection.Horizontal ? parent.ChildSize.X : parent.ChildSize.Y) - (spacing * (visibleNeighbours - 1));
             float size;
 
             if (TargetSize.HasValue)
                 size = (RelativeSize ? fullSpace : 1) * TargetSize.Value;
             else
             {
-                var autoSizeChildrenCount = parent.Children.Count;
+                var autoSizeChildrenCount = visibleNeighbours;
                 var autoSizeSpace = fullSpace;
 
                 foreach (var neighbour in parent.Children)
                 {
-                    if (!neighbour.TargetSize.HasValue)
+                    if (!neighbour.TargetSize.HasValue || !neighbour.IsPresent)
                         continue;
                     autoSizeChildrenCount--;
                     autoSizeSpace -= neighbour.RelativeSize ? neighbour.TargetSize.Value * fullSpace : neighbour.TargetSize.Value;
