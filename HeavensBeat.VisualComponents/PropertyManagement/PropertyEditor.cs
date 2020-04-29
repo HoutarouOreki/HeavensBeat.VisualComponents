@@ -9,7 +9,32 @@ using System;
 
 namespace HeavensBeat.VisualComponents.PropertyManagement
 {
-    public abstract class PropertyEditor<T> : Container
+    public abstract class PropertyEditor : Container
+    {
+        private Vector2 spacing;
+
+        public new abstract MarginPadding Padding { get; set; }
+
+        public Vector2 Spacing
+        {
+            get => spacing; set
+            {
+                spacing = value;
+                OnSpacingChangedInternal(value);
+                OnSpacingChanged(value);
+            }
+        }
+
+        protected PropertyEditor()
+        {
+        }
+
+        protected abstract void OnSpacingChangedInternal(Vector2 value);
+
+        protected virtual void OnSpacingChanged(Vector2 value) { }
+    }
+
+    public abstract class PropertyEditor<T> : PropertyEditor
     {
         private readonly Container mainContentContainer;
         private readonly SpriteText propertyStateText;
@@ -19,20 +44,12 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         private readonly FillFlowContainer outerFlow;
         private readonly FillFlowContainer innerFlow;
         private readonly Box background;
-        private Vector2 spacing;
 
-        public new MarginPadding Padding { get => outerFlow.Padding; set => outerFlow.Padding = value; }
+        public sealed override MarginPadding Padding { get => outerFlow.Padding; set => outerFlow.Padding = value; }
 
         public ColourInfo BackgroundColour { get => background.Colour; set => background.Colour = value; }
         public FontUsage TitleFont { get => titleText.Font; set => titleText.Font = value; }
         public FontUsage DescriptionFont { set => RegenerateDescriptionWithFont(value); }
-        public Vector2 Spacing { get => spacing; set
-            {
-                spacing = value;
-                OnSpacingChangedInternal(value);
-                OnSpacingChanged(value);
-            }
-        }
 
         public bool ReadyToSave => state.Value.State == PropertyState.ReadyToSave;
 
@@ -44,7 +61,6 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         {
             Property = property;
             Current = CreateCurrent();
-            RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
             InternalChildren = new Drawable[]
             {
@@ -93,8 +109,6 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             return true;
         }
 
-        protected virtual void OnSpacingChanged(Vector2 value) { }
-
         protected abstract Bindable<T> CreateCurrent();
 
         protected abstract Drawable CreateMainContent();
@@ -109,7 +123,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             mainContentContainer.Add(CreateMainContent());
         }
 
-        private void OnSpacingChangedInternal(Vector2 value) => outerFlow.Spacing = innerFlow.Spacing = value;
+        protected sealed override void OnSpacingChangedInternal(Vector2 value) => outerFlow.Spacing = innerFlow.Spacing = value;
 
         private void OnCurrentChangedInternal(ValueChangedEvent<T> change)
         {
@@ -142,7 +156,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         private string GetDefaultStateText() => state.Value.State switch
         {
             PropertyState.Saved => "Saved!",
-            PropertyState.ReadyToSave => "Ready to be saved",
+            PropertyState.ReadyToSave => "Ready to be saved!",
             PropertyState.Warning => "Why does this warning have no message?",
             PropertyState.Error => "Invalid input",
             _ => "Unknown state"

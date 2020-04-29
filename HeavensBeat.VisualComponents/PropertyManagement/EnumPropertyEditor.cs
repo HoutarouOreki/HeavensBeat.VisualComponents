@@ -1,5 +1,6 @@
 ﻿using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osuTK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
     {
         private readonly IReadOnlyDictionary<int, string> names;
         private readonly Bindable<string> bindableString;
+        private SearchSelector? searchSelector;
 
         public EnumPropertyEditor(Property<T> property) : base(property)
         {
@@ -20,15 +22,45 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
 
         protected override Bindable<T> CreateCurrent() => new Bindable<T>();
 
-        protected override Drawable CreateMainContent() => new SearchSelector
+        protected override Drawable CreateMainContent() => searchSelector = new SearchSelector
         {
             RelativeSizeAxes = Axes.X,
-            Height = 268,
+            Spacing = Spacing,
             Current = bindableString,
             Options = names.Values
         };
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            SetSearchSelectorHeight();
+        }
+
+        protected override void OnSpacingChanged(Vector2 value)
+        {
+            base.OnSpacingChanged(value);
+            if (searchSelector != null)
+            {
+                searchSelector.Spacing = value;
+                SetSearchSelectorHeight();
+            }
+        }
+
         private void OnSelectionChanged(ValueChangedEvent<string> sc) => Current.Value = (T)Enum.Parse(typeof(T), sc.NewValue);
+
+        private float SetSearchSelectorHeight()
+        {
+            if (searchSelector == null)
+                throw new ArgumentNullException();
+            var size = 0f;
+            if (searchSelector.DeselectOption)
+                size += SearchSelector.OPTION_SIZE;
+            if (names.Count > searchSelector.OptionsWithoutSearch)
+                size += Spacing.Y + SearchSelector.OPTION_SIZE;
+            size += Math.Min(4, names.Count) * SearchSelector.OPTION_SIZE;
+            searchSelector.Height = size;
+            return size;
+        }
 
         private Dictionary<int, string> GenerateNames()
         {

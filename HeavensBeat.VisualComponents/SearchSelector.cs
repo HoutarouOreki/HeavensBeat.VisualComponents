@@ -11,11 +11,14 @@ namespace HeavensBeat.VisualComponents
 {
     public class SearchSelector : FillFlowContainer<GridItem>
     {
+        public const int OPTION_SIZE = 30;
+        private const int default_spacing = 16;
+
         public Bindable<string> Current = new Bindable<string>();
 
-        public const float BASE_SIZE = MODULE_SIZE + spacing;
-        public const int MODULE_SIZE = 30;
-        private const int spacing = 16;
+        public float BaseSize => OPTION_SIZE + Spacing.Y;
+        public bool DeselectOption { get; }
+        public int OptionsWithoutSearch { get; }
 
         public IEnumerable<string> Options
         {
@@ -25,13 +28,13 @@ namespace HeavensBeat.VisualComponents
                 options = value;
                 foreach (var optionDisplay in optionsFlow)
                     optionDisplay.Selected -= OnOptionSelected;
-                if (deselectOption)
+                if (DeselectOption)
                 {
                     var optionDisplay = new OptionDisplay(null);
                     optionsFlow.Add(optionDisplay);
                     optionDisplay.Selected += OnOptionSelected;
                 }
-                var amountOfOptions = deselectOption ? 1 : 0;
+                var amountOfOptions = DeselectOption ? 1 : 0;
                 foreach (var option in options)
                 {
                     var optionDisplay = new OptionDisplay(option);
@@ -39,7 +42,7 @@ namespace HeavensBeat.VisualComponents
                     optionDisplay.Selected += OnOptionSelected;
                     amountOfOptions++;
                 }
-                if (amountOfOptions > optionsWithoutSearch)
+                if (amountOfOptions > OptionsWithoutSearch)
                     searchBoxGridItem.Show();
                 else
                     searchBoxGridItem.Hide();
@@ -51,8 +54,6 @@ namespace HeavensBeat.VisualComponents
 
         private IEnumerable<string> options = new List<string>();
         private readonly FillFlowContainer<OptionDisplay> optionsFlow;
-        private readonly int optionsWithoutSearch;
-        private readonly bool deselectOption;
         private readonly GridItem searchBoxGridItem;
 
         /// <param name="optionsWithoutSearch">
@@ -62,10 +63,10 @@ namespace HeavensBeat.VisualComponents
         public SearchSelector(int optionsWithoutSearch = 4, bool deselectOption = false)
         {
             Direction = FillDirection.Vertical;
-            Spacing = new osuTK.Vector2(spacing);
+            Spacing = new osuTK.Vector2(default_spacing);
             Children = new GridItem[]
             {
-                searchBoxGridItem = new GridItem(MODULE_SIZE, false, new HBTextBox
+                searchBoxGridItem = new GridItem(OPTION_SIZE, false, new HBTextBox
                 {
                     RelativeSizeAxes = Axes.Both,
                     Current = searchCurrent,
@@ -94,8 +95,8 @@ namespace HeavensBeat.VisualComponents
                 })
             };
             searchCurrent.BindValueChanged(SearchUpdated, true);
-            this.optionsWithoutSearch = optionsWithoutSearch;
-            this.deselectOption = deselectOption;
+            OptionsWithoutSearch = optionsWithoutSearch;
+            DeselectOption = deselectOption;
         }
 
         protected override void LoadComplete()
