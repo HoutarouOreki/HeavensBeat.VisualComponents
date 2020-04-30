@@ -54,7 +54,14 @@ namespace HeavensBeat.VisualComponents.Tests.Visual
             });
             AddSliderStep("Spacing+padding X", 0, 20f, 0, v => SetSpacing(v, true));
             AddSliderStep("Spacing+padding Y", 0, 20f, 0, v => SetSpacing(v, false));
+            AddToggleStep("Toggle autosave", ToggleAutosave);
             AddStep("Save properties", Save);
+        }
+
+        private void ToggleAutosave(bool obj)
+        {
+            foreach (var child in flow.Children)
+                child.AutoSave = obj;
         }
 
         private void Save()

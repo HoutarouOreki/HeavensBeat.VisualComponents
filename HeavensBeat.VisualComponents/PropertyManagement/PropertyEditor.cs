@@ -5,6 +5,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using System;
 
 namespace HeavensBeat.VisualComponents.PropertyManagement
 {
@@ -15,6 +16,8 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         public new abstract MarginPadding Padding { get; set; }
 
         public abstract string PropertyName { get; }
+
+        public bool AutoSave { get; set; }
 
         public Vector2 Spacing
         {
@@ -47,6 +50,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         private readonly FillFlowContainer outerFlow;
         private readonly FillFlowContainer innerFlow;
         private readonly Box background;
+        private DateTime timeCurrentChanged;
 
         public sealed override MarginPadding Padding { get => outerFlow.Padding; set => outerFlow.Padding = value; }
 
@@ -54,7 +58,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         public FontUsage TitleFont { get => titleText.Font; set => titleText.Font = value; }
         public FontUsage DescriptionFont { set => RegenerateDescriptionWithFont(value); }
 
-        public bool ReadyToSave => state.Value.State == PropertyState.ReadyToSave || state.Value.State == PropertyState.Warning;
+        public bool ReadyToSave => state.Value.State == PropertyState.Saved || state.Value.State == PropertyState.ReadyToSave || state.Value.State == PropertyState.Warning;
 
         public sealed override string PropertyName => Property.Name;
 
@@ -131,6 +135,13 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
 
         protected sealed override void OnSpacingChangedInternal(Vector2 value) => outerFlow.Spacing = innerFlow.Spacing = value;
 
+        protected override void Update()
+        {
+            base.Update();
+            if (AutoSave && state.Value.State != PropertyState.Saved && ReadyToSave && (DateTime.Now - timeCurrentChanged).TotalSeconds > .3)
+                Save();
+        }
+
         private void OnCurrentChangedInternal(ValueChangedEvent<T> change)
         {
             if (Property.Validator == null)
@@ -141,7 +152,9 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             var validation = Property.Validator(change.NewValue);
             state.Value = new PropertyStateInfo(ValidationToPropertyState(validation.Result), validation.Message);
             OnCurrentChanged(change);
+            timeCurrentChanged = DateTime.Now;
         }
+
         private void OnStateChanged(ValueChangedEvent<PropertyEditor<T>.PropertyStateInfo> obj) => UpdateStateText();
 
         private void UpdateStateText()
