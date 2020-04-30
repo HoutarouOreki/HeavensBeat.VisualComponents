@@ -1,6 +1,7 @@
 ﻿using HeavensBeat.VisualComponents.PropertyManagement;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using System;
 using System.Collections.Generic;
@@ -25,21 +26,45 @@ namespace HeavensBeat.VisualComponents.Tests.Visual
         private TestEnum2 secondEnum;
         private int integer = 0;
         private readonly FillFlowContainer<PropertyEditor> flow;
+        private readonly TextFlowContainer infoText;
 
         public TestScenePropertyManagement()
         {
-            Add(flow = new FillFlowContainer<PropertyEditor>
+            Add(new FillFlowContainer
             {
                 RelativeSizeAxes = Axes.Both,
-                Children = new PropertyEditor[]
+                Children = new Drawable[]
                 {
-                    new LimitedNumericPropertyEditor<int>(new LimitedNumericProperty<int>("Limited integer", "A whole number with minimum and maximum values (-10, 50). Can't be 42.", -10, 50, () => integer, v => integer = v, ValidateIntegerNot42)) { Padding = new MarginPadding(12), Width = 400 },
-                    new EnumPropertyEditor<TestEnum>(new EnumProperty<TestEnum>("Test enum property 1", "We're testing enumerable properties here. Selecting one results in an error", () => theEnum, v => theEnum = v, ValidateEnumNotOne)) { Padding = new MarginPadding(12), Width = 400 },
-                    new EnumPropertyEditor<TestEnum2>(new EnumProperty<TestEnum2>("Test enum property 2", "More, the searchbox should be shown now. Selecting the last option results in a warning.", () => secondEnum, v => secondEnum = v, ValidateNotJ)) { Padding = new MarginPadding(12), Width = 400 }
+                    flow = new FillFlowContainer<PropertyEditor>
+                    {
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Children = new PropertyEditor[]
+                        {
+                            new LimitedNumericPropertyEditor<int>(new LimitedNumericProperty<int>("Limited integer", "A whole number with minimum and maximum values (-10, 50). Can't be 42.", -10, 50, () => integer, v => integer = v, ValidateIntegerNot42)) { Padding = new MarginPadding(12), Width = 400 },
+                            new EnumPropertyEditor<TestEnum>(new EnumProperty<TestEnum>("Test enum property 1", "We're testing enumerable properties here. Selecting one results in an error", () => theEnum, v => theEnum = v, ValidateEnumNotOne)) { Padding = new MarginPadding(12), Width = 400 },
+                            new EnumPropertyEditor<TestEnum2>(new EnumProperty<TestEnum2>("Test enum property 2", "More, the searchbox should be shown now. Selecting the last option results in a warning.", () => secondEnum, v => secondEnum = v, ValidateNotJ)) { Padding = new MarginPadding(12), Width = 400 }
+                        }
+                    },
+                    infoText = new TextFlowContainer
+                    {
+                        AutoSizeAxes = Axes.Both
+                    }
                 }
             });
             AddSliderStep("Spacing+padding X", 0, 20f, 0, v => SetSpacing(v, true));
             AddSliderStep("Spacing+padding Y", 0, 20f, 0, v => SetSpacing(v, false));
+            AddStep("Save properties", Save);
+        }
+
+        private void Save()
+        {
+            infoText.Text = "";
+            foreach (var child in flow.Children)
+            {
+                if (!child.Save())
+                    infoText.AddParagraph($"Couldn't save {child.PropertyName}");
+            }
         }
 
         private void SetSpacing(float value, bool x)

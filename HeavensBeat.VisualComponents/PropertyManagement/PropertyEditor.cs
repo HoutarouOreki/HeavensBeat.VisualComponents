@@ -5,7 +5,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using System;
 
 namespace HeavensBeat.VisualComponents.PropertyManagement
 {
@@ -14,6 +13,8 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         private Vector2 spacing;
 
         public new abstract MarginPadding Padding { get; set; }
+
+        public abstract string PropertyName { get; }
 
         public Vector2 Spacing
         {
@@ -24,6 +25,8 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
                 OnSpacingChanged(value);
             }
         }
+
+        public abstract bool Save();
 
         protected PropertyEditor()
         {
@@ -51,7 +54,9 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         public FontUsage TitleFont { get => titleText.Font; set => titleText.Font = value; }
         public FontUsage DescriptionFont { set => RegenerateDescriptionWithFont(value); }
 
-        public bool ReadyToSave => state.Value.State == PropertyState.ReadyToSave;
+        public bool ReadyToSave => state.Value.State == PropertyState.ReadyToSave || state.Value.State == PropertyState.Warning;
+
+        public sealed override string PropertyName => Property.Name;
 
         protected override Container<Drawable> Content => mainContentContainer;
         protected Bindable<T> Current { get; }
@@ -101,11 +106,12 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             state.BindValueChanged(OnStateChanged, true);
         }
 
-        public bool Save()
+        public sealed override bool Save()
         {
             if (!ReadyToSave)
                 return false;
             Property.Setter(Current.Value);
+            state.Value = new PropertyStateInfo(PropertyState.Saved);
             return true;
         }
 
@@ -181,7 +187,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
             public readonly PropertyState State;
             public readonly string? Text;
 
-            public PropertyStateInfo(PropertyState state, string? text)
+            public PropertyStateInfo(PropertyState state, string? text = null)
             {
                 State = state;
                 Text = text;
