@@ -16,9 +16,34 @@ namespace HeavensBeat.VisualComponents
 
         public Bindable<string> Current = new Bindable<string>();
 
+        private readonly Bindable<string> searchCurrent = new Bindable<string>();
+
+        private IEnumerable<string> options = new List<string>();
+        private int optionsWithoutSearch;
+        private bool deselectOption;
+        private readonly FillFlowContainer<OptionDisplay> optionsFlow;
+        private readonly GridItem searchBoxGridItem;
+
         public float BaseSize => OPTION_SIZE + Spacing.Y;
-        public bool DeselectOption { get; }
-        public int OptionsWithoutSearch { get; }
+
+        public bool DeselectOption
+        {
+            get => deselectOption; set
+            {
+                deselectOption = value;
+                GenerateLayout();
+            }
+        }
+
+        public int OptionsWithoutSearch
+        {
+            get => optionsWithoutSearch;
+            set
+            {
+                optionsWithoutSearch = value;
+                GenerateLayout();
+            }
+        }
 
         public IEnumerable<string> Options
         {
@@ -26,35 +51,9 @@ namespace HeavensBeat.VisualComponents
             set
             {
                 options = value;
-                foreach (var optionDisplay in optionsFlow)
-                    optionDisplay.Selected -= OnOptionSelected;
-                if (DeselectOption)
-                {
-                    var optionDisplay = new OptionDisplay(null);
-                    optionsFlow.Add(optionDisplay);
-                    optionDisplay.Selected += OnOptionSelected;
-                }
-                var amountOfOptions = DeselectOption ? 1 : 0;
-                foreach (var option in options)
-                {
-                    var optionDisplay = new OptionDisplay(option);
-                    optionsFlow.Add(optionDisplay);
-                    optionDisplay.Selected += OnOptionSelected;
-                    amountOfOptions++;
-                }
-                if (amountOfOptions > OptionsWithoutSearch)
-                    searchBoxGridItem.Show();
-                else
-                    searchBoxGridItem.Hide();
-                OnOptionSelected(Current.Value);
+                GenerateLayout();
             }
         }
-
-        private readonly Bindable<string> searchCurrent = new Bindable<string>();
-
-        private IEnumerable<string> options = new List<string>();
-        private readonly FillFlowContainer<OptionDisplay> optionsFlow;
-        private readonly GridItem searchBoxGridItem;
 
         /// <param name="optionsWithoutSearch">
         /// Search textbox doesn't appear if the amount of options is up to this number.
@@ -109,6 +108,32 @@ namespace HeavensBeat.VisualComponents
         {
             foreach (var optionDisplay in optionsFlow)
                 optionDisplay.IsActive = optionDisplay.Value == vc.NewValue;
+        }
+
+        private void GenerateLayout()
+        {
+            foreach (var optionDisplay in optionsFlow)
+                optionDisplay.Selected -= OnOptionSelected;
+            optionsFlow.Clear();
+            if (DeselectOption)
+            {
+                var optionDisplay = new OptionDisplay(null);
+                optionsFlow.Add(optionDisplay);
+                optionDisplay.Selected += OnOptionSelected;
+            }
+            var amountOfOptions = DeselectOption ? 1 : 0;
+            foreach (var option in options)
+            {
+                var optionDisplay = new OptionDisplay(option);
+                optionsFlow.Add(optionDisplay);
+                optionDisplay.Selected += OnOptionSelected;
+                amountOfOptions++;
+            }
+            if (amountOfOptions > OptionsWithoutSearch)
+                searchBoxGridItem.Show();
+            else
+                searchBoxGridItem.Hide();
+            OnOptionSelected(Current.Value);
         }
 
         private void SearchUpdated(ValueChangedEvent<string> searchValueChange)
