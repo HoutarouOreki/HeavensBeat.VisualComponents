@@ -5,6 +5,8 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace HeavensBeat.VisualComponents.Tests.Visual
 {
@@ -25,6 +27,7 @@ namespace HeavensBeat.VisualComponents.Tests.Visual
         private TestEnum theEnum = 0;
         private TestEnum2 secondEnum;
         private int integer = 0;
+        private string text = "sdas";
         private readonly FillFlowContainer<PropertyEditor> flow;
         private readonly TextFlowContainer infoText;
 
@@ -43,7 +46,8 @@ namespace HeavensBeat.VisualComponents.Tests.Visual
                         {
                             new LimitedNumericPropertyEditor<int>(new LimitedNumericProperty<int>("Limited integer", "A whole number with minimum and maximum values (-10, 50). Can't be 42.", -10, 50, () => integer, v => integer = v, ValidateIntegerNot42)) { Padding = new MarginPadding(12), Width = 400 },
                             new EnumPropertyEditor<TestEnum>(new EnumProperty<TestEnum>("Test enum property 1", "We're testing enumerable properties here. Selecting one results in an error", () => theEnum, v => theEnum = v, ValidateEnumNotOne)) { Padding = new MarginPadding(12), Width = 400 },
-                            new EnumPropertyEditor<TestEnum2>(new EnumProperty<TestEnum2>("Test enum property 2", "More, the searchbox should be shown now. Selecting the last option results in a warning.", () => secondEnum, v => secondEnum = v, ValidateNotJ)) { Padding = new MarginPadding(12), Width = 400 }
+                            new EnumPropertyEditor<TestEnum2>(new EnumProperty<TestEnum2>("Test enum property 2", "More, the searchbox should be shown now. Selecting the last option results in a warning.", () => secondEnum, v => secondEnum = v, ValidateNotJ)) { Padding = new MarginPadding(12), Width = 400 },
+                            new StringPropertyEditor(new StringProperty("Text property", "A string of letters. Length between 3 and 9 inclusive, can only contain either numbers or letters, but not both. Allowable length should be displayed in the future", () => text, v => text = v, ValidateText)) { Padding = new MarginPadding(12), Width = 400 },
                         }
                     },
                     infoText = new TextFlowContainer
@@ -56,6 +60,18 @@ namespace HeavensBeat.VisualComponents.Tests.Visual
             AddSliderStep("Spacing+padding Y", 0, 20f, 0, v => SetSpacing(v, false));
             AddToggleStep("Toggle autosave", ToggleAutosave);
             AddStep("Save properties", Save);
+        }
+
+        private PropertyValidationResult ValidateText(string arg)
+        {
+            var s = "";
+            if (arg.Length < 3 || arg.Length > 9)
+                s += "Length should be from 3 to 9 characters. ";
+            if (Regex.IsMatch(arg, @"[a-zA-Z]") && Regex.IsMatch(arg, @"\d"))
+                s += "Cannot contain both letters and digits. ";
+            if (arg.Length > 0 && !Regex.IsMatch(arg, @"^(\d|[a-zA-Z])*$"))
+                s += "Must contain either letters xor digits.";
+            return new PropertyValidationResult(s.Length > 0 ? ValidationResult.Error : ValidationResult.Ok, !string.IsNullOrWhiteSpace(s) ? s : null);
         }
 
         private void ToggleAutosave(bool obj)
