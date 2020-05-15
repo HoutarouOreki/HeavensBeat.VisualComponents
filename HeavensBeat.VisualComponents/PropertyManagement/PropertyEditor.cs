@@ -43,7 +43,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
     public abstract class PropertyEditor<T> : PropertyEditor
     {
         private readonly Container mainContentContainer;
-        private readonly SpriteText propertyStateText;
+        private readonly TextFlowContainer propertyStateText;
         private readonly Bindable<PropertyStateInfo> state = new Bindable<PropertyStateInfo>();
         private readonly TextFlowContainer descriptionFlow;
         private readonly SpriteText titleText;
@@ -102,7 +102,11 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y
                         },
-                        propertyStateText = new SpriteText()
+                        propertyStateText = new TextFlowContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y
+                        }
                     }
                 }
             };

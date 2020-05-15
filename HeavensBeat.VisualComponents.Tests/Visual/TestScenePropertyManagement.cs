@@ -70,7 +70,7 @@ namespace HeavensBeat.VisualComponents.Tests.Visual
             if (Regex.IsMatch(arg, @"[a-zA-Z]") && Regex.IsMatch(arg, @"\d"))
                 s += "Cannot contain both letters and digits. ";
             if (arg.Length > 0 && !Regex.IsMatch(arg, @"^(\d|[a-zA-Z])*$"))
-                s += "Must contain either letters xor digits.";
+                s += "Cannot contain characters not being letters or digits.";
             return new PropertyValidationResult(s.Length > 0 ? ValidationResult.Error : ValidationResult.Ok, !string.IsNullOrWhiteSpace(s) ? s : null);
         }
 
