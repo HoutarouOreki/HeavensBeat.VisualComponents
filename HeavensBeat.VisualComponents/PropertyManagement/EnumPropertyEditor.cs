@@ -13,7 +13,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
         private readonly Bindable<string> bindableString;
         private SearchSelector? searchSelector;
 
-        public EnumPropertyEditor(Property<T> property) : base(property)
+        public EnumPropertyEditor(EnumProperty<T> property) : base(property)
         {
             names = GenerateNames();
             bindableString = new Bindable<string>(Enum.GetName(typeof(T), Current.Value) ?? throw new ArgumentNullException());
