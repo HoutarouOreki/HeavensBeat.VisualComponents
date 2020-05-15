@@ -7,7 +7,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
     {
         public StringPropertyEditor(StringProperty property) : base(property) { }
 
-        protected override Bindable<string> CreateCurrent() => new Bindable<string>("");
+        protected override Bindable<string> CreateCurrent() => new Bindable<string>(Property.Getter());
 
         protected override Drawable CreateMainContent() => new HBTextBox
         {
