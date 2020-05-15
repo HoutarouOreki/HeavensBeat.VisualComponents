@@ -148,12 +148,7 @@ namespace HeavensBeat.VisualComponents.PropertyManagement
 
         private void OnCurrentChangedInternal(ValueChangedEvent<T> change)
         {
-            if (Property.Validator == null)
-            {
-                state.Value = new PropertyStateInfo(PropertyState.Unknown, null);
-                return;
-            }
-            var validation = Property.Validator(change.NewValue);
+            var validation = Property.Validator?.Invoke(change.NewValue) ?? new PropertyValidationResult(ValidationResult.Ok, null);
             state.Value = new PropertyStateInfo(ValidationToPropertyState(validation.Result), validation.Message);
             OnCurrentChanged(change);
             timeCurrentChanged = DateTime.Now;
