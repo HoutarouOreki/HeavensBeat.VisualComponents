@@ -15,6 +15,8 @@ namespace HeavensBeat.VisualComponents
 
         public HBSliderBar()
         {
+            BackgroundColour = ColoursHB.MediumBlack;
+            SelectionColour = ColoursHB.Gray;
             KeyboardStep = 0.01f;
             AddInternal(new Container
             {

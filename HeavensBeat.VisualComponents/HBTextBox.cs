@@ -10,8 +10,8 @@ namespace HeavensBeat.VisualComponents
             TextFlow.Padding = new MarginPadding(1);
             TextContainer.Padding = new MarginPadding(1);
             BackgroundCommit = ColoursHB.IntenseGalacticCyan;
-            BackgroundFocused = ColoursHB.DimGray;
-            BackgroundUnfocused = ColoursHB.LightBlack;
+            BackgroundFocused = ColoursHB.DarkGray;
+            BackgroundUnfocused = ColoursHB.MediumBlack;
             CornerRadius = 0;
         }
     }

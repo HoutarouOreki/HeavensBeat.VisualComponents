@@ -189,6 +189,7 @@ namespace HeavensBeat.VisualComponents
                         }
                     }
                 };
+                UpdateLayout();
             }
 
             protected override bool OnClick(ClickEvent e)
@@ -213,9 +214,9 @@ namespace HeavensBeat.VisualComponents
             private void UpdateLayout()
             {
                 if (isActive)
-                    background.Colour = ColoursHB.DimGray;
+                    background.Colour = ColoursHB.DarkGray;
                 else
-                    background.Colour = IsHovered ? ColoursHB.DarkGray : ColoursHB.LightBlack;
+                    background.Colour = IsHovered ? ColoursHB.LightBlack : ColoursHB.MediumBlack;
             }
         }
     }
